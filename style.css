@@ -1,0 +1,363 @@
+/* --- 全局与极简配色 --- */
+:root {
+    --bg-color: #FAF9F6;
+    --text-main: #333333;
+    --text-light: #888888;
+    --border-color: #E0DCD3;
+    --accent-color: #BCA37F;
+    --chat-bg: #F4F2EC;
+}
+
+/* --- 黑夜模式颜色配置 --- */
+:root[data-theme="dark"] {
+    --bg-color: #0d0d0f; /* 深空黑 */
+    --text-main: #e0e0e0;
+    --text-light: #666666;
+    --accent-color: #d4af37; /* 保持暗金 */
+    --border-color: #2a2a2a;
+    --card-bg: #1a1a1c;
+}
+/* 给黑夜模式的卡牌加一点魔法发光 */
+:root[data-theme="dark"] .card-inner {
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1);
+}
+
+body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-main); font-family: "Optima", "Georgia", serif; -webkit-font-smoothing: antialiased; }
+
+/* --- 导航栏 --- */
+.top-nav { display: flex; flex-direction: column; align-items: center; padding: 20px 0 10px; border-bottom: 1px solid var(--border-color); background: rgba(250, 249, 246, 0.9); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(5px); }
+.logo { font-size: 20px; letter-spacing: 4px; color: var(--accent-color); margin-bottom: 15px; }
+.nav-links { list-style: none; padding: 0; margin: 0; display: flex; gap: 20px; }
+.nav-links li { font-size: 14px; color: var(--text-light); cursor: pointer; padding-bottom: 5px; }
+.nav-links li.active { color: var(--text-main); border-bottom: 1px solid var(--text-main); }
+
+/* --- 基础布局 --- */
+.content-area { padding: 30px 20px; max-width: 600px; margin: 0 auto; }
+.feature-section { display: none; animation: fadeIn 0.4s ease; }
+.active-section { display: block; }
+.section-header { text-align: center; margin-bottom: 30px; }
+.section-header h2 { font-weight: normal; letter-spacing: 2px; margin-bottom: 8px; }
+.section-header p, .instruction { color: var(--text-light); font-size: 13px; font-family: -apple-system, sans-serif; letter-spacing: 1px;}
+
+/* --- 按钮组件 --- */
+.setup-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+.btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 12px 20px; font-size: 14px; font-family: "Optima", serif; border-radius: 4px; cursor: pointer; transition: 0.3s; width: 220px; text-align: center;}
+.btn-outline:active { background: var(--accent-color); color: #fff; border-color: var(--accent-color); }
+.text-btn { background: none; border: none; color: var(--text-light); font-size: 12px; cursor: pointer; letter-spacing: 1px;}
+
+/* --- 塔罗牌 --- */
+.tarot-board { display: flex; flex-direction: column; align-items: center; }
+.cards-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px; }
+.card-wrapper { width: 100px; height: 170px; perspective: 1000px; cursor: pointer; }
+.card-label { text-align: center; font-size: 11px; color: var(--text-light); margin-bottom: 10px; }
+.card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; box-shadow: 0 8px 16px rgba(0,0,0,0.06); border-radius: 4px; }
+.card-wrapper.flipped .card-inner { transform: rotateY(180deg); }
+.card-front, .card-back { width: 100%; height: 100%; position: absolute; backface-visibility: hidden; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FFF; border: 1px solid var(--border-color); }
+.card-back { background-image: radial-gradient(circle, var(--bg-color) 0%, #FFF 100%); }
+.css-diamond { width: 18px; height: 18px; border: 1px solid var(--accent-color); transform: rotate(45deg); position: relative; }
+.css-diamond::after { content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; border: 1px solid rgba(188, 163, 127, 0.3); }
+.card-front { transform: rotateY(180deg); padding: 8px; box-sizing: border-box; }
+.card-name-en { font-size: 9px; color: var(--text-light); text-transform: uppercase; margin-bottom: 8px; }
+.card-seq {
+    font-size: 10px;
+    color: var(--accent-color);
+    margin-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 2px;
+    letter-spacing: 1px;
+}
+.card-name-zh { font-size: 14px; color: var(--text-main); writing-mode: vertical-rl; letter-spacing: 3px; transition: transform 0.3s; }
+.card-status { font-size: 10px; color: var(--accent-color); margin-top: 8px; border: 1px solid var(--accent-color); padding: 2px 4px; border-radius: 2px;}
+
+/* 逆位翻转特效：文字颠倒 */
+.is-reversed .card-name-zh { transform: rotate(180deg); }
+
+.reading-box { width: 100%; background: #FFF; border: 1px solid var(--border-color); padding: 25px; box-sizing: border-box; }
+.reading-title { text-align: center; font-size: 14px; color: var(--accent-color); margin-bottom: 15px; }
+.typewriter-text { font-family: -apple-system, sans-serif; font-size: 14px; line-height: 1.8; color: #555; }
+
+/* --- 聊天室 --- */
+.chat-container { border: 1px solid var(--border-color); background: #FFF; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; height: 60vh; }
+.chat-history-box { flex: 1; padding: 20px; overflow-y: auto; background: var(--chat-bg); display: flex; flex-direction: column; gap: 15px; }
+.chat-msg { max-width: 80%; padding: 12px 16px; border-radius: 12px; font-family: -apple-system, sans-serif; font-size: 14px; line-height: 1.6; word-wrap: break-word; }
+.ai-msg { background: #FFF; border: 1px solid var(--border-color); align-self: flex-start; border-top-left-radius: 2px; }
+.user-msg { background: var(--text-main); color: var(--bg-color); align-self: flex-end; border-top-right-radius: 2px; }
+.context-msg { font-size: 12px; color: var(--text-light); background: rgba(255,255,255,0.5); border: 1px dashed var(--border-color); padding: 10px; margin-bottom: 5px; border-radius: 6px; }
+
+.chat-input-area { display: flex; padding: 15px; background: #FFF; border-top: 1px solid var(--border-color); gap: 10px; align-items: center; }
+.attach-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-light); }
+#chat-input { flex: 1; border: 1px solid var(--border-color); border-radius: 20px; padding: 10px 15px; font-size: 14px; outline: none; background: var(--bg-color); }
+.send-btn { background: var(--text-main); color: #FFF; border: none; padding: 10px 20px; border-radius: 20px; font-size: 13px; cursor: pointer; }
+
+/* --- 弹窗 --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(250, 249, 246, 0.8); backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: center; align-items: center; }
+.modal-content { background: #FFF; border: 1px solid var(--border-color); padding: 30px; width: 85%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); border-radius: 8px; }
+.modal-content h3 { margin-top: 0; font-weight: normal; color: var(--accent-color); text-align: center; }
+.input-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+.input-group label { font-size: 12px; color: var(--text-light); margin-bottom: 5px; }
+.input-group input { padding: 10px; border: 1px solid var(--border-color); font-family: -apple-system, sans-serif; font-size: 14px; outline: none; }
+.modal-actions { display: flex; justify-content: space-between; margin-top: 25px; align-items: center; }
+
+/* 历史列表 */
+.history-list { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.history-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; font-family: -apple-system, sans-serif; }
+.history-item input[type="checkbox"] { accent-color: var(--accent-color); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.placeholder-box { text-align: center; padding: 50px; color: var(--text-light); font-size: 13px; border: 1px dashed var(--border-color); }
+/* --- 重新生成按钮 --- */
+.regen-btn {
+    font-size: 11px;
+    color: var(--text-light);
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 8px;
+    padding: 0;
+    display: block;
+    text-align: right;
+    width: 100%;
+}
+.regen-btn:hover {
+    color: var(--accent-color);
+}
+.error-msg {
+    color: #e63946 !important;
+    border-color: #e63946 !important;
+}
+/* --- 自由摆阵 (拖拽桌面) --- */
+.custom-table {
+    width: 100%;
+    height: 50vh;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden; /* 防止牌拖出去 */
+    background: rgba(250, 249, 246, 0.5);
+    margin-bottom: 20px;
+}
+
+.deck-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.deck-card {
+    width: 70px;
+    height: 120px;
+    background-image: radial-gradient(circle, var(--bg-color) 0%, #FFF 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+    touch-action: none; /* 关键：禁止移动端浏览器默认的滑动和缩放 */
+}
+
+/* 桌面上被拖拽的实体卡牌 */
+.draggable-card-wrapper {
+    position: absolute;
+    width: 80px;
+    height: 135px;
+    perspective: 1000px;
+    cursor: grab;
+    touch-action: none;
+    z-index: 10;
+}
+.draggable-card-wrapper:active { cursor: grabbing; }
+
+/* 缩小自由模式下的字体适配小卡片 */
+.draggable-card-wrapper .card-name-zh { font-size: 12px; letter-spacing: 2px; }
+.draggable-card-wrapper .card-status { font-size: 9px; }
+/* --- 唯美悬浮解牌面板动画 --- */
+.custom-detail-panel {
+    position: absolute;
+    bottom: -100px; /* 初始隐藏在下方 */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    max-width: 350px;
+    background: rgba(250, 249, 246, 0.85); /* 半透明背景 */
+    backdrop-filter: blur(12px); /* 毛玻璃虚化特效 */
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(188, 163, 127, 0.3); /* 边缘微泛金光 */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1); /* 带有回弹的呼吸感 */
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    text-align: center;
+    cursor: pointer;
+}
+
+.custom-detail-panel.show {
+    bottom: 120px; /* 向上浮现的位置 */
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.custom-detail-title {
+    font-size: 15px;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.custom-detail-desc {
+    font-size: 13px;
+    color: var(--text-main);
+    line-height: 1.7;
+    text-align: justify;
+}
+
+/* 让拖拽时的卡牌也多一点光影质感 */
+.draggable-card-wrapper:active .card-inner {
+    box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+    transform: scale(1.05); /* 拿起时微微放大 */
+}
+/* ✨ 新增：让自由模式的卡牌能够执行 3D 翻转 */
+.draggable-card-wrapper.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+/* ==========================================
+   3D 星盘引擎样式 (极致华丽版)
+========================================= */
+.astrolabe-wrapper {
+    perspective: 1200px; /* 加深 3D 景深 */
+    width: 100%;
+    height: 380px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin: 20px 0;
+    touch-action: none; 
+}
+.astrolabe {
+    width: 280px;
+    height: 280px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(60deg) rotateZ(0deg);
+    transition: transform 0.1s linear;
+    /* 增加一个发光的魔法底座 */
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, rgba(0,0,0,0) 70%);
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.2), inset 0 0 30px rgba(212, 175, 55, 0.3);
+    border: 2px solid rgba(212, 175, 55, 0.4);
+}
+.astro-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+}
+
+/* ✨ 真正的立体悬浮：利用 translateZ 把环推向不同的空中高度 */
+/* 外环：黄道十二宫 (最低层) */
+.ring-zodiac { 
+    width: 100%; height: 100%; 
+    border: 1px solid rgba(212, 175, 55, 0.5); 
+    animation: spinZodiac 60s linear infinite; 
+}
+/* 中环：宫位 (悬浮在中间) */
+.ring-houses { 
+    width: 70%; height: 70%; 
+    border: 2px dashed rgba(212, 175, 55, 0.6); 
+    animation: spinHouses 40s linear infinite; 
+}
+/* 内环：行星 (悬浮在最高处) */
+.ring-planets { 
+    width: 40%; height: 40%; 
+    border: 1px dotted rgba(212, 175, 55, 0.8); 
+    animation: spinPlanets 20s linear infinite; 
+}
+/* 中心：发光的恒星核心 */
+.astro-center { 
+    position: absolute; width: 15px; height: 15px; 
+    background: #fff; border-radius: 50%; 
+    top: 50%; left: 50%; 
+    transform: translate(-50%, -50%) translateZ(60px); 
+    box-shadow: 0 0 20px #fff, 0 0 40px var(--accent-color); 
+}
+
+/* 环上的星象符号 (自带霓虹发光) */
+.astro-symbol {
+    position: absolute;
+    color: var(--accent-color);
+    font-size: 18px;
+    font-family: serif;
+    font-weight: bold;
+    transform: rotateX(-90deg); /* 符号永远朝上立着 */
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.8); /* 发光特效 */
+}
+
+/* 带有高度差的旋转动画 */
+@keyframes spinZodiac { 0% { transform: translate(-50%, -50%) translateZ(10px) rotateZ(0deg); } 100% { transform: translate(-50%, -50%) translateZ(10px) rotateZ(360deg); } }
+@keyframes spinHouses { 0% { transform: translate(-50%, -50%) translateZ(30px) rotateZ(0deg); } 100% { transform: translate(-50%, -50%) translateZ(30px) rotateZ(-360deg); } }
+@keyframes spinPlanets { 0% { transform: translate(-50%, -50%) translateZ(50px) rotateZ(0deg); } 100% { transform: translate(-50%, -50%) translateZ(50px) rotateZ(360deg); } }
+
+/* 星盘的输入与解盘面板 */
+.astro-panel { text-align: center; margin-top: 10px; padding: 0 20px; }
+.astro-panel input { width: 90%; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; text-align: center; border-radius: 10px; font-family: inherit; margin-bottom: 10px; }
+.astro-result { background: var(--card-bg); border: 1px solid var(--accent-color); padding: 20px; border-radius: 10px; margin-top: 20px; text-align: left; display: none; line-height: 1.6; box-shadow: 0 0 15px rgba(212, 175, 55, 0.1); }
+/* ==========================================
+   动态粒子与冥想音乐面板
+========================================= */
+/* 魔法星尘粒子容器 (仅在黑夜模式下显示) */
+#particles-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none; /* 防止挡住点击 */
+    z-index: -1;
+    overflow: hidden;
+    display: none; /* 默认隐藏 */
+}
+:root[data-theme="dark"] #particles-container {
+    display: block; /* 切换到黑夜时自动出现 */
+}
+.particle {
+    position: absolute;
+    background: rgba(212, 175, 55, 0.6);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+    animation: floatUp linear infinite;
+}
+@keyframes floatUp {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+}
+
+/* 冥想音乐控制台 */
+.audio-controls {
+    display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; justify-content: center;
+}
+.audio-btn {
+    background: transparent; border: 1px solid var(--accent-color);
+    color: var(--text-main); padding: 8px 15px; border-radius: 20px; cursor: pointer;
+}
+.audio-btn.active {
+    background: var(--accent-color); color: var(--bg-color);
+}
+.audio-input-group {
+    margin-top: 15px; display: flex; gap: 10px; flex-direction: column; align-items: center;
+}
+.audio-input-group input {
+    width: 90%; background: transparent; border: 1px solid var(--border-color);
+    color: var(--text-main); padding: 10px; border-radius: 10px; text-align: center;
+}

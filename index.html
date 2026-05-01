@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER | 神秘学</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- 魔法星尘粒子层 -->
+    <div id="particles-container"></div>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+        <div class="logo">A E T H E R</div>
+        <ul class="nav-links">
+            <li class="active" onclick="switchTab('tarot')">塔罗</li>
+            <li onclick="switchTab('chat')">解牌</li>
+            <li onclick="switchTab('astrology')">星盘</li>
+            <li onclick="openMeditationPanel()" style="font-size: 16px;">🎵</li>
+                        <li id="theme-btn" onclick="toggleTheme()" style="font-size: 16px;">🌙</li>
+            <li onclick="openSettings()">设置</li>
+        </ul>
+    </nav> <!-- ✨ 就是加上这一行，把导航栏关好 -->
+
+    <main class="content-area">
+        
+        <!-- 模块 1: 塔罗牌 -->
+        <section id="tab-tarot" class="feature-section active-section">
+            <div class="section-header">
+                <h2>每日指引</h2>
+                <p>深呼吸，在心中默念你的问题</p>
+            </div>
+            <div id="setup-screen" class="setup-container">
+                <button class="btn-outline" onclick="startTarot('single')">单牌 (每日启示)</button>
+                <button class="btn-outline" onclick="startTarot('three')">三牌阵 (过去/现在/未来)</button>
+                <button class="btn-outline" onclick="startTarot('cross')">十字阵 (现状/障碍/建议)</button>
+                <div style="width: 100%; border-bottom: 1px dashed var(--border-color); margin: 10px 0;"></div>
+                <button class="btn-outline" style="border-color: var(--accent-color); color: var(--accent-color);" onclick="startCustomTarot()">✦ 自由摆阵 (沉浸拖拽) ✦</button>
+            </div>
+
+            <!-- 原有的固定牌阵桌面 (保留不变) -->
+            <div id="tarot-screen" class="tarot-board" style="display: none;">
+                <!-- ... 原有的按钮、提示词、容器和AI解读区保留 ... -->
+                <button class="text-btn" onclick="resetTarot()">✦ 重新选择 ✦</button>
+                <p id="instruction-text" class="instruction">请触碰卡牌</p>
+                <div class="cards-container" id="cards-container"></div>
+                <div id="ai-reading" class="reading-box" style="display: none;">
+                    <div class="reading-title">基础牌意</div>
+                    <div class="typewriter-text" id="typewriter-text"></div>
+                    <button class="btn-outline" style="margin-top: 20px; width: 100%;" onclick="switchTab('chat')">前往「解牌」室深度解析</button>
+                </div>
+            </div>
+
+            <!-- 新增：自由摆阵的沉浸式桌面 -->
+            <div id="custom-tarot-screen" class="tarot-board" style="display: none; position: relative;">
+                <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 10px;" data-html2canvas-ignore>
+                    <button class="text-btn" onclick="resetTarot()">返回</button>
+                    <button class="text-btn" style="color: var(--accent-color);" onclick="clearCustomTable()">🔄 重新抽选</button>
+                    <div>
+                        <button class="text-btn" style="color: var(--text-main); margin-right: 10px;" onclick="saveCustomHistory()">保存</button>
+                        <button class="btn-outline" style="padding: 6px 12px; width: auto;" onclick="exportImage()">📸 生成海报</button>
+                    </div>
+                </div>
+                <p class="instruction">从下方牌堆拖出卡牌至桌面，轻触翻牌自行解读</p>
+                
+                <!-- 牌桌区域 -->
+                <div id="custom-table" class="custom-table"></div>
+                
+                <!-- ✨ 新增：悬浮的唯美解牌面板 -->
+                <div id="custom-detail-panel" class="custom-detail-panel" onclick="this.classList.remove('show')">
+                    <div id="custom-detail-title" class="custom-detail-title"></div>
+                    <div id="custom-detail-desc" class="custom-detail-desc"></div>
+                    <div style="font-size: 9px; color: var(--text-light); margin-top: 10px;">轻触面板关闭</div>
+                </div>
+                
+                <!-- 底部牌堆 -->
+                <div class="deck-area" id="deck-area">
+                    <div class="deck-card" onpointerdown="spawnDraggableCard(event)">
+                        <div class="css-diamond"></div>
+                    </div>
+                    <span style="font-size: 10px; color: var(--text-light); margin-top: 5px;">按住拖拽</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 2: AI 解牌室 (新功能) -->
+        <section id="tab-chat" class="feature-section">
+            <div class="section-header">
+                <h2>高我链接</h2>
+                <p>选择历史牌阵，与潜意识对话</p>
+            </div>
+            <div class="chat-container">
+                <!-- 对话显示区 -->
+                <div id="chat-history-box" class="chat-history-box">
+                    <div class="chat-msg ai-msg">你好，我是你的专属解读师。请附加抽牌记录，并告诉我你的困惑。</div>
+                </div>
+                <!-- 底部输入区 -->
+                <div class="chat-input-area">
+                    <button class="attach-btn" onclick="openHistoryModal()">📎</button>
+                    <input type="text" id="chat-input" placeholder="输入你想问的问题...">
+                    <button class="send-btn" onclick="sendChatMessage()">发送</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模块 3: 星盘占位 -->
+        <!-- 模块 3: 3D 星盘 -->
+        <!-- 模块 3: 3D 星盘算命 -->
+        <section id="tab-astrology" class="feature-section">
+            <div class="section-header">
+                <h2>宇宙倒影</h2>
+                <p>触碰并拨动星环，探寻你降生时的天机</p>
+            </div>
+            
+            <!-- 3D 华丽交互区 -->
+            <div class="astrolabe-wrapper" id="astrolabe-wrapper">
+                <div class="astrolabe" id="astrolabe">
+                    <div class="astro-ring ring-zodiac" id="ring-zodiac"></div>
+                    <div class="astro-ring ring-houses" id="ring-houses"></div>
+                    <div class="astro-ring ring-planets" id="ring-planets"></div>
+                    <div class="astro-center"></div>
+                </div>
+            </div>
+
+            <!-- 出生信息录入与解读 -->
+            <div class="astro-panel">
+                <input type="datetime-local" id="astro-time">
+                <br>
+                <input type="text" placeholder="出生城市 (例如: 巴黎 / 北京)" id="astro-city">
+                <br>
+                <!-- ✨ 绑定了算命函数 -->
+                <button class="btn-outline" id="astro-btn" style="border-color: var(--accent-color); color: var(--accent-color); width: 90%;" onclick="generateAstroReading()">✦ 凝结星盘并解读 ✦</button>
+                
+                <!-- 算命结果显示框 -->
+                <div class="astro-result" id="astro-result">
+                    <div id="astro-typewriter" style="white-space: pre-wrap;"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 弹窗 1: API 设置面板 -->
+    <div id="settings-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>链接设置</h3>
+            <p class="instruction" style="text-align: left; margin-bottom: 15px;">配置兼容 OpenAI 格式的 API，例如 DeepSeek、Kimi 等。</p>
+            <div class="input-group">
+                <label>API 地址 (Base URL)</label>
+                <input type="text" id="api-url" placeholder="如: https://api.deepseek.com/v1">
+            </div>
+            <div class="input-group">
+                <label>API 密钥 (API Key)</label>
+                <input type="password" id="api-key" placeholder="sk-...">
+            </div>
+            <div class="input-group">
+                <label style="display: flex; justify-content: space-between;">
+                    选择模型 (Model) 
+                    <!-- 新增：拉取列表按钮 -->
+                    <button class="text-btn" style="margin: 0; padding: 0; color: var(--accent-color);" onclick="fetchModels()">🔄 拉取列表</button>
+                </label>
+                <!-- 变更为 select 下拉菜单 -->
+                <select id="api-model" style="padding: 10px; border: 1px solid var(--border-color); font-family: -apple-system, sans-serif; font-size: 14px; outline: none; background: var(--bg-color); appearance: auto;">
+                    <option value="">请先输入URL和Key，点击上方拉取</option>
+                </select>
+            </div>
+
+            <!-- 新增：记忆上下文限制 -->
+            <div class="input-group">
+                <label>AI 记忆历史对话条数 (防止消耗过多)</label>
+                <input type="number" id="api-context-limit" placeholder="默认: 10" min="0" max="50">
+            </div>
+            
+            <div id="test-result" style="font-size: 12px; margin-bottom: 15px; text-align: center; min-height: 16px;"></div>
+
+            <div class="modal-actions" style="flex-wrap: wrap; gap: 10px; justify-content: space-between;">
+                <button class="text-btn" onclick="closeSettings()">取消</button>
+                <div style="display: flex; gap: 10px;">
+                    <!-- 新增：测试连接按钮 -->
+                    <button class="btn-outline" style="width: auto; padding: 12px 15px; border-color: var(--accent-color); color: var(--accent-color);" onclick="testConnection()">测试连接</button>
+                    <button class="btn-outline" style="width: auto; padding: 12px 15px;" onclick="saveSettings()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 2: 选择历史记录 -->
+    <div id="history-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>选择抽牌记录</h3>
+            <div id="history-list" class="history-list">
+                <!-- JS 动态生成历史记录列表 -->
+            </div>
+            <div class="modal-actions">
+                <button class="text-btn" onclick="closeHistoryModal()">取消</button>
+                <button class="btn-outline" style="width: auto;" onclick="confirmHistorySelection()">确认附加</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <!-- 冥想音乐控制面板 -->
+    <div id="meditation-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="text-align: center;">
+            <h3>🎵 环境冥想音</h3>
+            <p style="color:var(--text-light); font-size: 14px;">在浩瀚宇宙中，寻找与你共振的频率</p>
+            
+            <div class="audio-controls">
+                <button class="audio-btn" onclick="playPresetAudio('hypnotic', this)">🌌 深度催眠波</button>
+                <button class="audio-btn" onclick="playPresetAudio('noise', this)">🌧️ 潜意识白噪</button>
+                <button class="audio-btn" onclick="playPresetAudio('bowl', this)">🥣 脉轮颂钵</button>
+                <button class="audio-btn" onclick="stopAudio()" style="border-color: #ff4444; color: #ff4444;">⏹️ 停止</button>
+            </div>
+
+            <div class="audio-input-group">
+                <p style="margin-top: 10px; font-size: 13px; color: var(--accent-color);">✦ 支持直链，或输入【网易云】分享链接/单曲ID ✦</p>
+                <input type="text" id="custom-audio-url" placeholder="例如网易云单曲ID: 1974443814">
+                <button class="btn-outline" style="border-color: var(--accent-color); color: var(--accent-color);" onclick="playCustomAudio()">✨ 注入音乐灵魂 ✨</button>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn-outline" onclick="closeMeditationPanel()">关闭面板</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
