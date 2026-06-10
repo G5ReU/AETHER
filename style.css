@@ -492,3 +492,128 @@ body { margin: 0; padding: 0; background: var(--bg-color); color: var(--text-mai
     text-align: left;
     font-family: -apple-system, sans-serif;
 }
+/* ==========================================
+   掷圣杯 立体样式
+========================================= */
+.jiao-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+}
+
+/* 落地区（带个柔和的影子） */
+.jiao-ground {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-end;
+    height: 240px;          /* 留出向上抛的空间 */
+    perspective: 800px;
+}
+
+/* 单个圣杯的容器 */
+.jiao-block-wrap {
+    width: 64px;
+    height: 100px;
+    perspective: 700px;
+    position: relative;
+}
+/* 地面投影 */
+.jiao-block-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 12px;
+    background: rgba(0,0,0,0.18);
+    border-radius: 50%;
+    filter: blur(4px);
+    z-index: -1;
+}
+
+/* 可翻转的杯身 */
+.jiao-block {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+/* 两个面 */
+.jiao-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    /* 月牙/筊杯的弧线轮廓 */
+    border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+    border: 1px solid rgba(0,0,0,0.15);
+}
+/* 凸面（圆鼓鼓，带高光） */
+.jiao-round {
+    background: radial-gradient(ellipse at 38% 28%, #E9554F 0%, #B5271F 60%, #7C1410 100%);
+    box-shadow: inset -5px -7px 14px rgba(0,0,0,0.45),
+                inset 5px 5px 10px rgba(255,255,255,0.35);
+}
+/* 平面（平整偏暗） */
+.jiao-flat {
+    transform: rotateX(180deg);
+    background: linear-gradient(135deg, #B53A30, #7C1812);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* 抛掷翻滚动画 */
+@keyframes jiaoThrow {
+    0%   { transform: translateY(0) rotateX(0deg); }
+    15%  { transform: translateY(-150px) rotateX(200deg); }
+    45%  { transform: translateY(-190px) rotateX(540deg); }
+    100% { transform: translateY(0) rotateX(var(--end-rot)); }
+}
+.jiao-throwing {
+    animation: jiaoThrow 1.2s cubic-bezier(0.33, 0, 0.4, 1) forwards;
+}
+
+/* 掷筊结果卡片 */
+.jiao-result {
+    background: #FFF;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 25px;
+    margin-top: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    animation: fadeIn 0.6s ease;
+}
+.jiao-result-name {
+    font-size: 22px;
+    color: var(--accent-color);
+    letter-spacing: 6px;
+    margin-bottom: 15px;
+}
+.jiao-desc {
+    font-size: 14px;
+    line-height: 1.9;
+    color: #555;
+    text-align: justify;
+    font-family: -apple-system, sans-serif;
+}
+/* ==========================================
+   历史记录 类型彩色标签
+========================================= */
+.history-tag {
+    display: inline-block;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 9px;
+    border-radius: 4px;
+    margin-right: 6px;
+    letter-spacing: 1px;
+    vertical-align: middle;
+}
+.history-item div {
+    line-height: 1.5;
+}

@@ -17,7 +17,8 @@
             <li class="active" onclick="switchTab('tarot')">塔罗</li>
             <li onclick="switchTab('chat')">解牌</li>
 <li onclick="switchTab('astrology')">星盘</li>
-<li onclick="switchTab('qian')">求签</li>   <!-- ✨ 新增这一行 -->
+<li onclick="switchTab('qian')">求签</li>
+<li onclick="switchTab('jiao')">掷筊</li>   <!-- ✨ 新增这一行 -->
             <li onclick="openMeditationPanel()" style="font-size: 16px;">🎵</li>
                         <li id="theme-btn" onclick="toggleTheme()" style="font-size: 16px;">🌙</li>
             <li onclick="openSettings()">设置</li>
@@ -172,8 +173,44 @@
                 <div class="qian-desc" id="qian-desc"></div>
                 <div style="display:flex; gap:10px; margin-top:20px;">
                     <button class="btn-outline" style="flex:1;" onclick="resetQian()">再 求 一 签</button>
-                    <button class="btn-outline" style="flex:1; border-color:var(--accent-color); color:var(--accent-color);" onclick="askQianToAI()">问 AI 详解</button>
+                    <button class="btn-outline" style="flex:1; border-color:var(--accent-color); color:var(--accent-color);" onclick="askQianToAI()">存入解牌历史</button>
                 </div>
+            </div>
+        </section>
+
+        <!-- 模块 5: 掷圣杯 -->
+        <section id="tab-jiao" class="feature-section">
+            <div class="section-header">
+                <h2>神明掷筊</h2>
+                <p>双手捧杯，心诚则灵，默念所求后掷出圣杯</p>
+            </div>
+
+            <div class="jiao-stage">
+                <!-- 两个圣杯 -->
+                <div class="jiao-ground">
+                    <div class="jiao-block-wrap" id="jiao-1">
+                        <div class="jiao-block">
+                            <div class="jiao-face jiao-round"></div>
+                            <div class="jiao-face jiao-flat"></div>
+                        </div>
+                    </div>
+                    <div class="jiao-block-wrap" id="jiao-2">
+                        <div class="jiao-block">
+                            <div class="jiao-face jiao-round"></div>
+                            <div class="jiao-face jiao-flat"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-outline" id="jiao-btn" style="border-color:var(--accent-color); color:var(--accent-color); margin-top:30px;" onclick="throwJiao()">✦ 掷 出 圣 杯 ✦</button>
+                <p id="jiao-tip" class="instruction" style="margin-top:15px;">心中默念所求，掷出你的答案</p>
+            </div>
+
+            <!-- 掷筊结果 -->
+            <div id="jiao-result" class="jiao-result" style="display:none;">
+                <div id="jiao-result-name" class="jiao-result-name"></div>
+                <div id="jiao-result-desc" class="jiao-desc"></div>
+                <button class="btn-outline" style="margin-top:18px; width:100%;" onclick="askJiaoToAI()">存入解牌历史</button>
             </div>
         </section>
 
@@ -226,7 +263,7 @@
     <!-- 弹窗 2: 选择历史记录 -->
     <div id="history-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <h3>选择抽牌记录</h3>
+            <h3>选择占卜记录</h3>
             <div id="history-list" class="history-list">
                 <!-- JS 动态生成历史记录列表 -->
             </div>

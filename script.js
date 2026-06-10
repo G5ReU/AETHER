@@ -240,10 +240,11 @@ function saveToHistory() {
     const record = {
         id: Date.now(),
         date: new Date().toLocaleString(),
+        type: 'tarot',   // ✨ 类型标记
         spread: currentSpread === 'single' ? '单牌' : (currentSpread === 'three' ? '三牌阵' : '十字阵'),
         cards: drawnCards.map(c => ({
             position: c.index,
-            name: `牌${c.index + 1}: ${c.data.nameZh}`, // ✨ 修改了这里
+            name: `牌${c.index + 1}: ${c.data.nameZh}`,
             status: c.isReversed ? '逆位' : '正位'
         }))
     };
@@ -285,16 +286,34 @@ function openHistoryModal() {
     const list = document.getElementById('history-list');
     list.innerHTML = '';
     if(drawHistory.length === 0) {
-        list.innerHTML = '<p style="color:var(--text-light); text-align:center;">暂无抽牌记录</p>';
+        list.innerHTML = '<p style="color:var(--text-light); text-align:center;">暂无占卜记录</p>';
     } else {
         drawHistory.forEach(record => {
-            let desc = record.cards.map(c => `${c.name}(${c.status})`).join(', ');
+            // 根据类型决定：标签文字、标签颜色、内容描述
+            let tagText, tagColor, desc;
+            if (record.type === 'qian') {
+                tagText = '抽签';
+                tagColor = '#D4A017';   // 金黄
+                desc = record.summary;
+            } else if (record.type === 'jiao') {
+                tagText = '掷筊';
+                tagColor = '#C0392B';   // 朱红
+                desc = record.summary;
+            } else {
+                tagText = '塔罗牌';
+                tagColor = '#7C5CD4';   // 神秘紫
+                desc = record.cards.map(c => `${c.name}(${c.status})`).join(', ');
+            }
+
             list.innerHTML += `
                 <label class="history-item">
                     <input type="checkbox" value="${record.id}" class="history-checkbox">
-                    <div>
-                        <strong>${record.date}</strong> [${record.spread}]<br>
-                        <span style="color:var(--text-light)">${desc}</span>
+                    <div style="flex:1;">
+                        <span class="history-tag" style="background:${tagColor};">${tagText}</span>
+                        <strong style="font-size:11px;">${record.date}</strong>
+                        <span style="color:var(--text-light); font-size:10px;"> · ${record.spread}</span>
+                        <br>
+                        <span style="color:var(--text-light); display:block; margin-top:4px;">${desc}</span>
                     </div>
                 </label>
             `;
@@ -348,28 +367,29 @@ function sendChatMessage() {
     const userText = inputEl.value.trim();
     if (!userText) return;
 
-    // 1. 显示用户消息
     addMessage(userText, 'user-msg');
     inputEl.value = '';
 
-    // 2. 构建 Prompt（如果有勾选历史牌阵）
     let promptContent = userText;
     if (selectedContextIds.length > 0) {
-        let historyStr = "【背景信息：用户近期抽牌记录】\n";
+        let historyStr = "【背景信息：用户近期占卜记录】\n";
         selectedContextIds.forEach(id => {
             const record = drawHistory.find(r => r.id === id);
             if(record) {
-                historyStr += `时间:${record.date}, 阵型:${record.spread}, 牌面:${record.cards.map(c=>c.name+c.status).join(', ')}\n`;
+                if (record.type === 'qian') {
+                    historyStr += `[抽签] 时间:${record.date}，${record.summary}\n`;
+                } else if (record.type === 'jiao') {
+                    historyStr += `[掷筊] 时间:${record.date}，${record.summary}\n`;
+                } else {
+                    historyStr += `[塔罗牌] 时间:${record.date}，阵型:${record.spread}，牌面:${record.cards.map(c=>c.name+c.status).join(', ')}\n`;
+                }
             }
         });
-        promptContent = historyStr + "\n用户问题：" + userText + "\n请结合以上牌面给出解答。";
-        selectedContextIds = []; // 消耗掉记录
+        promptContent = historyStr + "\n用户问题：" + userText + "\n请结合以上占卜结果给出解答。";
+        selectedContextIds = [];
     }
 
-    // 3. 将用户发言加入本地记忆数组
     chatSession.push({ role: "user", content: promptContent });
-
-    // 4. 触发请求
     triggerAIRequest();
 }
 
@@ -664,10 +684,11 @@ function saveCustomHistory() {
     const record = {
         id: Date.now(),
         date: new Date().toLocaleString(),
+        type: 'tarot',   // ✨ 类型标记
         spread: '自由摆阵',
         cards: customDrawnCards.map(c => ({
             position: c.index,
-            name: `牌${c.index + 1}: ${c.data.nameZh}`, // ✨ 修改了这里
+            name: `牌${c.index + 1}: ${c.data.nameZh}`,
             status: c.isReversed ? '逆位' : '正位'
         }))
     };
@@ -1178,7 +1199,7 @@ function shakeQian() {
 
         // 随机抽一支签
         const idx = Math.floor(Math.random() * QIAN_DATABASE.length);
-        currentQian = QIAN_DATABASE[idx];
+        currentQian = { ...QIAN_DATABASE[idx], num: idx + 1 };  // ✨ 记住签号
         const qianNum = idx + 1;
 
         document.getElementById('qian-num').innerText = `第 ${qianNum} 签`;
@@ -1203,14 +1224,100 @@ function resetQian() {
 // 把当前签文带到 AI 解牌室
 function askQianToAI() {
     if (!currentQian) return;
+    const record = {
+        id: Date.now(),
+        date: new Date().toLocaleString(),
+        type: 'qian',
+        spread: `第${currentQian.num}签`,
+        summary: `${currentQian.level}，签文：${currentQian.poem.replace(/\n/g, '，')}。白话签解：${currentQian.desc}`
+    };
+    drawHistory.unshift(record);
+    localStorage.setItem('aetherHistory', JSON.stringify(drawHistory));
+    alert("✦ 此签已存入「解牌」室历史 ✦\n前往解牌室点 📎 勾选它，就能写下你想问的话，让 AI 结合签文解答。");
+}
+// ==========================================
+// 11. 掷圣杯 引擎
+// ==========================================
+let isThrowing = false;
+let currentJiao = null;
 
-    // 切换到解牌室 Tab
-    document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
-    document.querySelectorAll('.feature-section').forEach(sec => sec.classList.remove('active-section'));
-    document.getElementById('tab-chat').classList.add('active-section');
+function throwJiao() {
+    if (isThrowing) return; // 防止动画期间连点
+    isThrowing = true;
 
-    // 把签文塞进输入框
-    const inputEl = document.getElementById('chat-input');
-    inputEl.value = `我抽到一支签【${currentQian.level}】，签文是：${currentQian.poem.replace(/\n/g, '，')}。请大师为我详细解读这支签的含义。`;
-    inputEl.focus();
+    AudioEngine.play('draw'); // 抛出的声音
+    document.getElementById('jiao-result').style.display = 'none';
+    document.getElementById('jiao-tip').innerText = "圣杯飞旋，神明聆听中...";
+
+    const blocks = [
+        document.querySelector('#jiao-1 .jiao-block'),
+        document.querySelector('#jiao-2 .jiao-block')
+    ];
+
+    // 每个杯子各自随机：round=凸面朝上, flat=平面朝上
+    const faces = blocks.map(() => Math.random() < 0.5 ? 'round' : 'flat');
+
+    blocks.forEach((block, i) => {
+        // 重置动画（强制浏览器重新播放）
+        block.classList.remove('jiao-throwing');
+        void block.offsetWidth; // 触发重排，这一步是关键
+
+        // 随机转 2 或 3 整圈，再加上最终落地的那一面
+        const spins = (2 + Math.floor(Math.random() * 2)) * 360;
+        const landing = faces[i] === 'round' ? 0 : 180; // 凸面朝上=0, 平面朝上=180
+        block.style.setProperty('--end-rot', `${spins + landing}deg`);
+
+        block.classList.add('jiao-throwing');
+    });
+
+    // 动画结束后定格 + 出结果
+    setTimeout(() => {
+        AudioEngine.play('flip'); // 落地"咔哒"声
+        showJiaoResult(faces);
+        isThrowing = false;
+    }, 1250);
+}
+
+function showJiaoResult(faces) {
+    const flatCount = faces.filter(f => f === 'flat').length;
+    let name, desc;
+
+    if (flatCount === 1) {
+        // 一平一凸
+        name = "聖 筊";
+        desc = "一平一凸，圣杯成对。神明应允你所求之事，可安心前行。这是最吉的答覆，代表「是、同意、可行」。心之所向，皆有回应。";
+    } else if (flatCount === 2) {
+        // 两个平面
+        name = "笑 筊";
+        desc = "双平面朝上，神明含笑不语。或是所问之事尚不清晰，或是时机未到。请沉淀心绪、把问题想得更具体些，再诚心掷一次。";
+    } else {
+        // 两个凸面
+        name = "陰 筊";
+        desc = "双凸面朝上，神明轻轻摇首。此事暂不宜，或答案为「否」。莫要强求，不妨换个角度重新请示，或静待更合适的时机降临。";
+    }
+
+    currentJiao = { name, desc };
+    document.getElementById('jiao-result-name').innerText = name;
+    document.getElementById('jiao-result-desc').innerText = desc;
+    document.getElementById('jiao-tip').innerText = "神明已应，圣杯落定";
+
+    const r = document.getElementById('jiao-result');
+    r.style.display = 'block';
+    AudioEngine.play('chime');
+    r.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// 把掷筊结果带到 AI 解牌室
+function askJiaoToAI() {
+    if (!currentJiao) return;
+    const record = {
+        id: Date.now(),
+        date: new Date().toLocaleString(),
+        type: 'jiao',
+        spread: '掷筊',
+        summary: `掷出【${currentJiao.name}】：${currentJiao.desc}`
+    };
+    drawHistory.unshift(record);
+    localStorage.setItem('aetherHistory', JSON.stringify(drawHistory));
+    alert("✦ 此卦已存入「解牌」室历史 ✦\n前往解牌室点 📎 勾选它，就能写下你想问的话，让 AI 结合卦象解答。");
 }
