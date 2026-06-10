@@ -1121,3 +1121,96 @@ function playCustomAudio() {
     bgmPlayer.load();
     bgmPlayer.play().catch(e => alert("苹果安全机制拦截，建议使用预设的【冥想合成声波】。"));
 }
+// ==========================================
+// 10. 摇签筒 求签引擎
+// ==========================================
+const QIAN_DATABASE = [
+    { level: "上上签", poem: "天开地辟结良缘\n日吉时良万事全\n若得此签非小可\n人行中正帝王宣", desc: "大吉之兆。万事顺遂，所求皆得。只要你行事光明磊落、心存正念，必有贵人相助，前程一片光明。" },
+    { level: "上吉签", poem: "营谋望事在春前\n相欠之中尚未全\n至意频频祈圣力\n荣华富贵福绵绵", desc: "吉。目前所谋之事虽尚有欠缺，但只要诚心坚持，时机一到便会圆满。富贵荣华，指日可待。" },
+    { level: "中吉签", poem: "宝剑出匣耀光明\n在匣全然不惹尘\n今得贵人提携引\n马到成功在此行", desc: "中吉。你如同藏于匣中的宝剑，才华暂未显露。如今贵人将至，大胆出击，必能马到成功。" },
+{ level: "中平签", poem: "看君来问心中事\n积善之家庆有余\n时运未亨且守旧\n待时而动免忧虑", desc: "平稳。当下时运未到通达之时，宜静守本分，多行善事。切莫躁进，待时机成熟再行动，可免忧虑。" },
+    { level: "上吉签", poem: "一轮明月照天庭\n万里无云四海清\n忽遇一片云霭起\n登时阴影黑朦朦", desc: "吉中带提醒。目前局面清朗顺利，但需提防突如其来的小波折。保持警觉，乌云终会散去，重见光明。" },
+    { level: "中吉签", poem: "莫听闲言与是非\n晨昏只好念阿弥\n若将先世根基倒\n竹篮提水几时盈", desc: "中吉。莫被外界流言扰乱心神，专注自身根本。守住根基踏实经营，方能避免徒劳无功。" },
+    { level: "上上签", poem: "金乌西坠兔东升\n日夜循环至古今\n谁道天高难叫问\n须知天理藐然明", desc: "大吉。天理昭彰，循环有序。你心中的疑问终将得到上天回应，公道自在人心，无需忧惧。" },
+    { level: "下下签", poem: "君今庚甲未亨通\n且向江头作钓翁\n玉兔渐东升海上\n待看明月正天中", desc: "暂为下签，需耐心。眼下时运受阻，宜如垂钓者般沉住气。困境只是暂时，光明会如东升的明月般如约而至。" },
+    { level: "中平签", poem: "宽心且守暂时危\n切莫忧煎信祸非\n忍耐数年门户改\n时来终遇得明医", desc: "平。当前虽处困境，但切勿过度忧虑。忍耐与坚持是良药，熬过这段，自有转机与良人相助。" },
+    { level: "上吉签", poem: "好将心地力耕耘\n彼此身心皆有春\n造化弄人君莫叹\n两家谋望两相成", desc: "吉。用心经营你所珍视的人与事，付出终有回报。莫怨命运，双方齐心，所愿皆可成就。" },
+    { level: "中吉签", poem: "石藏无价玉和珍\n只为时乖在路边\n好把石头磨琢看\n何愁不遇做高官", desc: "中吉。你本是璞玉，只是暂未遇良机。沉下心来打磨自己，是金子终会发光，何愁前程？" },
+    { level: "上上签", poem: "君家何事苦匆匆\n马上当头喜气浓\n一旦云开见明月\n谋财谋事尽亨通", desc: "大吉。不必焦虑奔忙，喜事就在眼前。拨云见月之时，无论求财求事，皆能畅通无阻。" },
+    { level: "中平签", poem: "勤耕力作莫蹉跎\n衣食随时安乐窝\n纵使经商收倍利\n不如逐分积成多", desc: "平稳安康。脚踏实地、勤恳积累是你的福气所在。不必贪图暴利，细水长流方能积少成多。" },
+    { level: "下签", poem: "病中若得苦心劳\n到底完全总未遭\n去后不须回头问\n切恐他时事又遭", desc: "下签，宜谨慎。近期诸事易反复劳神，切忌瞻前顾后、犹豫不决。下决定后便果断前行，避免再生枝节。" },
+    { level: "上吉签", poem: "登山涉水正天寒\n兄弟同行那畏难\n临到面前为运至\n贵人接引上金鞍", desc: "吉。前路虽有艰险寒冷，但有同伴相助则无所畏惧。坚持到底，贵人将助你一臂之力，登上高位。" },
+    { level: "中吉签", poem: "一年作事急如飞\n君尔何须问吉凶\n祸福分明天数定\n何须问我此根宗", desc: "中吉。这一年你行动迅捷、成果可期。吉凶自有天定，与其反复问卜，不如把握当下、全力以赴。" },
+    { level: "上上签", poem: "鲸鱼未化守江湖\n未许升腾离碧波\n异日运通雷雨至\n禹门一跳过龙门", desc: "大吉之兆。你如蛰伏的鲸鱼，正积蓄力量。一旦时运来临、风雷际会，必能一跃龙门，扶摇直上。" },
+    { level: "中平签", poem: "幼年争斗为家财\n手足如同陌路开\n如今劝你和为贵\n莫待时迟空自哀", desc: "平，重在和睦。莫为利益伤了亲近之人的情分。以和为贵，及时修复关系，否则错过便追悔莫及。" },
+    { level: "上吉签", poem: "锦上添花色色新\n运来谁不识斯文\n一朝雨露成功后\n富贵荣华万象新", desc: "吉。好运连连，喜上加喜。当下正是你大展身手之时，一番努力之后，将迎来焕然一新的富贵景象。" },
+    { level: "中吉签", poem: "于今此景正当时\n看看欲吐百花魁\n若能遇得春色到\n一洒清香满世人", desc: "中吉。你正处于绽放前夕，如含苞待放的花魁。只要春风一到，你的才华与魅力将惊艳所有人。" },
+    { level: "下签", poem: "庸医如何敢妄行\n炼丹学到老君门\n金丹一粒人难买\n不如修身养自心", desc: "下签，宜内省。莫向外强求难得之物，盲目行事易出差错。回归本心、修身养性，才是当下最好的良方。" },
+    { level: "上上签", poem: "一木开花便结实\n开枝散叶满堂红\n人间富贵天来定\n何用区区作小工", desc: "大吉。开花即结果，繁荣昌盛、子孙满堂之象。福气由天注定，你的格局远大，无需拘泥于眼前小事。" },
+    { level: "中平签", poem: "欲求胜事可非常\n争奈亲姻日暂忙\n到头竹篮提水事\n力心空费枉徒劳", desc: "平，需调整方向。所求之事看似美好，却因诸多牵绊难以成就。审视方法是否得当，避免白费力气。" },
+    { level: "上吉签", poem: "万里晴空一镜悬\n光明清彻照无偏\n谁知此景为君兆\n福禄绵绵自有缘", desc: "吉。如万里晴空、明镜高悬，前景一片光明公正。这正是为你而来的好兆头，福禄绵延，皆是良缘。" },
+    { level: "中吉签", poem: "君今百事且随缘\n水到渠成天自全\n但改新衣过旧岁\n更须方寸好为人", desc: "中吉。凡事随缘，水到渠成。辞旧迎新之际，端正心念、与人为善，福报自会降临。" }
+];
+
+let currentQian = null;
+let isShaking = false;
+
+function shakeQian() {
+    if (isShaking) return; // 防止连点
+    isShaking = true;
+
+    const tube = document.getElementById('qian-tube');
+    const tip = document.getElementById('qian-tip');
+    const result = document.getElementById('qian-result');
+
+    // 先把上一次结果藏起来
+    result.style.display = 'none';
+    tip.innerText = "签筒摇动中... 命运正在显现";
+
+    // 播放摇签的"竹签碰撞"声
+    AudioEngine.play('draw');
+    tube.classList.add('shaking');
+
+    // 摇晃动画结束后，弹出签
+    setTimeout(() => {
+        tube.classList.remove('shaking');
+        AudioEngine.play('chime'); // 出签的清脆声
+
+        // 随机抽一支签
+        const idx = Math.floor(Math.random() * QIAN_DATABASE.length);
+        currentQian = QIAN_DATABASE[idx];
+        const qianNum = idx + 1;
+
+        document.getElementById('qian-num').innerText = `第 ${qianNum} 签`;
+        document.getElementById('qian-level').innerText = currentQian.level;
+        document.getElementById('qian-poem').innerText = currentQian.poem;
+        document.getElementById('qian-desc').innerText = currentQian.desc;
+
+        tip.innerText = "诚心所至，签文已现";
+        result.style.display = 'block';
+        result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        isShaking = false;
+    }, 600);
+}
+
+function resetQian() {
+    document.getElementById('qian-result').style.display = 'none';
+    document.getElementById('qian-tip').innerText = "轻触签筒摇出你的命运之签";
+    document.getElementById('qian-tube').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// 把当前签文带到 AI 解牌室
+function askQianToAI() {
+    if (!currentQian) return;
+
+    // 切换到解牌室 Tab
+    document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+    document.querySelectorAll('.feature-section').forEach(sec => sec.classList.remove('active-section'));
+    document.getElementById('tab-chat').classList.add('active-section');
+
+    // 把签文塞进输入框
+    const inputEl = document.getElementById('chat-input');
+    inputEl.value = `我抽到一支签【${currentQian.level}】，签文是：${currentQian.poem.replace(/\n/g, '，')}。请大师为我详细解读这支签的含义。`;
+    inputEl.focus();
+}

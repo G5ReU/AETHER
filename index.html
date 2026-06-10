@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>AETHER | 神秘学</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -16,7 +16,8 @@
         <ul class="nav-links">
             <li class="active" onclick="switchTab('tarot')">塔罗</li>
             <li onclick="switchTab('chat')">解牌</li>
-            <li onclick="switchTab('astrology')">星盘</li>
+<li onclick="switchTab('astrology')">星盘</li>
+<li onclick="switchTab('qian')">求签</li>   <!-- ✨ 新增这一行 -->
             <li onclick="openMeditationPanel()" style="font-size: 16px;">🎵</li>
                         <li id="theme-btn" onclick="toggleTheme()" style="font-size: 16px;">🌙</li>
             <li onclick="openSettings()">设置</li>
@@ -135,6 +136,43 @@
                 <!-- 算命结果显示框 -->
                 <div class="astro-result" id="astro-result">
                     <div id="astro-typewriter" style="white-space: pre-wrap;"></div>
+                </div>
+            </div>
+        </section>
+
+<!-- 模块 4: 摇签筒求签 -->
+        <section id="tab-qian" class="feature-section">
+            <div class="section-header">
+                <h2>神明问签</h2>
+                <p>双手合十，心中默念所求之事，轻摇签筒</p>
+            </div>
+
+            <div class="qian-stage">
+                <!-- 签筒 -->
+                <div id="qian-tube" class="qian-tube" onclick="shakeQian()">
+                    <div class="qian-tube-body">
+                        <div class="qian-stick s1"></div>
+                        <div class="qian-stick s2"></div>
+                        <div class="qian-stick s3"></div>
+                        <div class="qian-stick s4"></div>
+                        <div class="qian-stick s5"></div>
+                    </div>
+                    <div class="qian-tube-mouth"></div>
+                    <div class="qian-tube-label">签</div>
+                </div>
+                <p id="qian-tip" class="instruction" style="margin-top: 20px;">轻触签筒摇出你的命运之签</p>
+            </div>
+
+            <!-- 求签结果 -->
+            <div id="qian-result" class="qian-result" style="display: none;">
+                <div id="qian-num" class="qian-num"></div>
+                <div id="qian-level" class="qian-level"></div>
+                <div class="qian-poem" id="qian-poem"></div>
+                <div class="qian-divider">✦ 签 文 详 解 ✦</div>
+                <div class="qian-desc" id="qian-desc"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-outline" style="flex:1;" onclick="resetQian()">再 求 一 签</button>
+                    <button class="btn-outline" style="flex:1; border-color:var(--accent-color); color:var(--accent-color);" onclick="askQianToAI()">问 AI 详解</button>
                 </div>
             </div>
         </section>
